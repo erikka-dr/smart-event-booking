@@ -41,11 +41,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["update_status"])) {
         exit;
     }
 
-    $bookingId = filter_var($_POST["booking_id"] ?? "", FILTER_VALIDATE_INT);
-    $bookingStatus = trim($_POST["booking_status"] ?? "");
-    $paymentStatus = trim($_POST["payment_status"] ?? "");
+   $bookingId = filter_var($_POST["booking_id"] ?? "", FILTER_VALIDATE_INT);
+$bookingStatus = trim($_POST["booking_status"] ?? "");
+$paymentStatus = trim($_POST["payment_status"] ?? "");
 
-    if ($bookingId) {
+$allowedBookingStatuses = [
+    "Pending",
+    "Approved",
+    "Completed",
+    "Cancelled",
+    "Rejected"
+];
+
+$allowedPaymentStatuses = [
+    "Paid",
+    "Unpaid"
+];
+
+    if (
+    $bookingId &&
+    in_array($bookingStatus, $allowedBookingStatuses, true) &&
+    in_array($paymentStatus, $allowedPaymentStatuses, true)
+) {
         $stmt = $conn->prepare(
             "UPDATE bookings 
              SET booking_status = ?, payment_status = ? 
