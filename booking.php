@@ -22,13 +22,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $eventTime = $_POST["event_time"] ?? "";
     $guestCount = filter_var($_POST["guest_count"] ?? "", FILTER_VALIDATE_INT);
     $packageName = trim($_POST["package_name"] ?? "");
+    
+    $dateObject = DateTime::createFromFormat('Y-m-d', $eventDate);
+$validDate = $dateObject && $dateObject->format('Y-m-d') === $eventDate;
 
     if ($eventType === "" || $venueArea === "" || $eventDate === "" || $eventTime === "" || !$guestCount || $guestCount < 1 || $packageName === "") {
         $_SESSION["flash_message"] = "Please complete all required fields, including the venue area and package.";
         $_SESSION["flash_type"] = "error";
-    } elseif ($eventDate < date("Y-m-d")) {
-        $_SESSION["flash_message"] = "Please choose today or a future date.";
-        $_SESSION["flash_type"] = "error";
+    } elseif (!$validDate) {
+    $_SESSION["flash_message"] = "Please enter a valid event date.";
+    $_SESSION["flash_type"] = "error";
+} elseif ($eventDate < date("Y-m-d")) {
+    $_SESSION["flash_message"] = "Please choose today or a future date.";
+    $_SESSION["flash_type"] = "error";
     } else {
         $checkStmt = $conn->prepare(
             "SELECT booking_id FROM bookings 
